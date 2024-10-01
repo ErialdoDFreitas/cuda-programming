@@ -1,5 +1,5 @@
 //
-// Laplacian Filter using CUDA
+// Implementação de Filtro Laplaciano usando CUDA
 //
 #include "opencv2/imgproc/imgproc.hpp"
 #include <opencv2/highgui.hpp>
@@ -15,45 +15,45 @@ extern "C" bool laplacianFilter_CPU(const cv::Mat& input, cv::Mat& output);
 
 
 // Program main
-int main( int argc, char** argv ) {
+int main(int argc, char** argv) {
 
-   // name of image
-   string image_name = "../Images/Samples/sample1_in.jpg";
+   // Nome da imagem
+   string image_name = "../Images/Samples/sample1_in";
 
-   // input & output file names
-   string input_file =  image_name+".jpeg";
-   string output_file_cpu = image_name+"_cpu.jpeg";
-   string output_file_gpu = image_name+"_gpu.jpeg";
+   // Definindo nomes para imagens de entrada & saída
+   string input_file =  image_name+".jpg";
+   string output_file_cpu = image_name+"_out_cpu.jpeg";
+   string output_file_gpu = image_name+"_out_gpu.jpeg";
 
-   // Read input image 
-   cv::Mat srcImage = cv::imread(input_file ,CV_LOAD_IMAGE_UNCHANGED);
+   // Lendo a imagem de entrada
+   cv::Mat srcImage = cv::imread(input_file, cv::IMREAD_UNCHANGED);
    if(srcImage.empty())
    {
       std::cout<<"Image Not Found: "<< input_file << std::endl;
       return -1;
    }
-   cout <<"\ninput image size: "<<srcImage.cols<<" "<<srcImage.rows<<" "<<srcImage.channels()<<"\n";
+   cout <<"\n Tamanho da Imagem de entrada: "<<srcImage.cols<<", "<<srcImage.rows<<", "<<srcImage.channels()<<"\n";
 
-   // convert RGB to gray scale
-   cv::cvtColor(srcImage, srcImage, CV_BGR2GRAY);
+   // convertendo RGB para gray scale
+   cv::cvtColor(srcImage, srcImage, cv::COLOR_BGR2GRAY);
 
-   // Declare the output image  
-   cv::Mat dstImage (srcImage.size(), srcImage.type());
+   // Declarando a imagem de saída  
+   cv::Mat dstImage(srcImage.size(), srcImage.type());
 
-   // run laplacian filter on GPU  
+   // Executando filtro laplaciano na GPU ---------------------------------------------------------------
    laplacianFilter_GPU_wrapper(srcImage, dstImage);
-   // normalization to 0-255
+   // normalizando para 0-255
    dstImage.convertTo(dstImage, CV_32F, 1.0 / 255, 0);
    dstImage*=255;
-   // Output image
+   // Gerando imagem de saída
    imwrite(output_file_gpu, dstImage);
 
-   // run laplacian filter on CPU  
+   // Executando filtro laplaciano on CPU ---------------------------------------------------------------
    laplacianFilter_CPU(srcImage, dstImage);
-   // normalization to 0-255
+   // normalizando para 0-255
    dstImage.convertTo(dstImage, CV_32F, 1.0 / 255, 0);
    dstImage*=255;
-   // Output image
+   // Gerando imagem de saída
    imwrite(output_file_cpu, dstImage);
       
    return 0;
